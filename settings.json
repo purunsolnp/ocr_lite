@@ -1,0 +1,20 @@
+{
+  "OCR_REGION": [
+    750,
+    1036,
+    1653,
+    1151
+  ],
+  "OUTPUT_POSITION": [
+    1609,
+    372
+  ],
+  "HOTKEY": "f8",
+  "GLOBAL_HOTKEY": true,
+  "ENGINE": "deepl",
+  "USE_GPU": false,
+  "OCR_INTERVAL": 1.0,
+  "SOURCE_LANG": "en",
+  "TARGET_LANG": "ko",
+  "AUTO_DETECT_LANG": true
+}
