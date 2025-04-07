@@ -1,13 +1,13 @@
 {
   "OCR_REGION": [
-    750,
-    1036,
-    1653,
-    1151
+    129,
+    686,
+    252,
+    748
   ],
   "OUTPUT_POSITION": [
-    1609,
-    372
+    865,
+    764
   ],
   "HOTKEY": "f8",
   "GLOBAL_HOTKEY": true,

@@ -65,8 +65,7 @@ def create_overlay_window():
     drag_bar.place(relx=0, rely=0, relwidth=1, height=8)
     drag_bar.bind("<Button-1>", start_move)
     drag_bar.bind("<B1-Motion>", on_move)
-    content_frame.bind("<Button-1>", start_move)
-    content_frame.bind("<B1-Motion>", on_move)
+    
     # 크기 조절 핸들 생성 함수
     def create_resize_handle():
         # 우측 하단 크기 조절 핸들
@@ -373,45 +372,25 @@ def create_main_window():
     
     win = tk.Toplevel()
     win.title("간소화된 OCR 번역기")
-    win.geometry("200x400")
-    win.resizable(True, True)  # 크기 조절 가능하게 변경
-    
-    # 최소 크기 설정
-    win.minsize(200, 400)
-
-    # 메인 프레임을 생성하고 스크롤 가능하게 만듦
-    main_frame = tk.Frame(win)
-    main_frame.pack(fill="both", expand=True)
-    
-    # 캔버스 생성 (스크롤을 위해)
-    canvas = tk.Canvas(main_frame)
-    canvas.pack(side="left", fill="both", expand=True)
-    
-    # 스크롤바 생성 및 캔버스에 연결
-    scrollbar = tk.Scrollbar(main_frame, orient="vertical", command=canvas.yview)
-    scrollbar.pack(side="right", fill="y")
-    canvas.configure(yscrollcommand=scrollbar.set)
-    
-    # 캔버스 내부에 프레임 생성 (실제 컨텐츠를 위한 프레임)
-    content_frame = tk.Frame(canvas)
-    canvas.create_window((0, 0), window=content_frame, anchor="nw")
+    win.geometry("300x400")
+    win.resizable(False, False)
     
     status = tk.Label(win, text="⚫ 번역 미사용", bg="#888888", fg="white", padx=10, pady=5)
     status.pack(fill="x")
-     
+    
     engine_var = StringVar(value=get_setting("ENGINE"))
-    engine_dropdown = tk.OptionMenu(content_frame, engine_var, "deepl", "libretranslate")
+    engine_dropdown = tk.OptionMenu(win, engine_var, "deepl", "libretranslate")
     engine_dropdown.config(width=20)
     engine_dropdown.pack(pady=10)
     
     # 번역 토글 버튼
-    toggle_btn = tk.Button(content_frame, text="▶️ 번역 시작", width=20)
+    toggle_btn = tk.Button(win, text="▶️ 번역 시작", width=20)
     toggle_btn.pack(pady=5)
     
     def update_status(running):
         engine = get_setting("ENGINE").upper()
         status.config(
-            text=f"🟢 번역 켬 ({engine})" if running else "⚫ 번역 미사용",
+            text=f"🟢 번역 켜 ({engine})" if running else "⚫ 번역 미사용",
             bg="#3cb043" if running else "#888888"
         )
         toggle_btn.config(text="⏸️ 번역 중단" if running else "▶️ 번역 시작")
@@ -456,12 +435,11 @@ def create_main_window():
     
     # 오버레이 위치 설정 버튼
     def overlay_reset():
-        def on_area_selected(pos):
-            update_setting("OUTPUT_POSITION", (pos[0], pos[1]))
+        select_area(lambda pos: (
+            update_setting("OUTPUT_POSITION", (pos[0], pos[1])),
             save_settings()
-            messagebox.showinfo("완료", "오버레이 위치가 설정되었습니다.")
-        
-        select_area(on_area_selected)
+        ))
+        messagebox.showinfo("완료", "오버레이 위치가 설정되었습니다.")
     
     # 기본 위치로 리셋 버튼
     def reset_to_default():
@@ -473,16 +451,16 @@ def create_main_window():
     # 핫키 등록
     # gui.py (계속)
     # 버튼 추가
-    tk.Button(content_frame, text="📐 OCR 위치 재설정", command=ocr_reset, width=20).pack(pady=5)
-    tk.Button(content_frame, text="🖼️ 오버레이 위치 재설정", command=overlay_reset, width=20).pack(pady=5)
-    tk.Button(content_frame, text="🧹 위치 초기화", command=reset_to_default, width=20).pack(pady=5)
+    tk.Button(win, text="📐 OCR 위치 재설정", command=ocr_reset, width=20).pack(pady=5)
+    tk.Button(win, text="🖼️ 오버레이 위치 재설정", command=overlay_reset, width=20).pack(pady=5)
+    tk.Button(win, text="🧹 위치 초기화", command=reset_to_default, width=20).pack(pady=5)
     
     # API 키 설정 버튼
-    tk.Button(content_frame, text="🔑 DeepL API 설정", command=lambda: setup_api_key("deepl"), width=20).pack(pady=5)
-    tk.Button(content_frame, text="🌍 LibreTranslate 설정", command=lambda: setup_api_key("libretranslate"), width=20).pack(pady=5)
+    tk.Button(win, text="🔑 DeepL API 설정", command=lambda: setup_api_key("deepl"), width=20).pack(pady=5)
+    tk.Button(win, text="🌍 LibreTranslate 설정", command=lambda: setup_api_key("libretranslate"), width=20).pack(pady=5)
     
     # 설정 버튼
-    tk.Button(content_frame, text="⚙️ 설정", command=lambda: open_settings_window(win, overlay_label), width=20).pack(pady=5)
+    tk.Button(win, text="⚙️ 설정", command=lambda: open_settings_window(win, overlay_label), width=20).pack(pady=5)
     
     # 종료 버튼
     def quit_program():
@@ -491,10 +469,10 @@ def create_main_window():
         overlay.destroy()
         os._exit(0)
     
-    tk.Button(content_frame, text="❌ 프로그램 종료", command=quit_program, width=20).pack(pady=5)
+    tk.Button(win, text="❌ 프로그램 종료", command=quit_program, width=20).pack(pady=5)
     
     # 프로그램 정보 레이블
-    blog = tk.Label(content_frame, text="🔗 제작자 블로그", fg="blue", cursor="hand2")
+    blog = tk.Label(win, text="🔗 제작자 블로그", fg="blue", cursor="hand2")
     blog.pack(pady=5)
     blog.bind("<Button-1>", lambda e: webbrowser.open("https://sonagi-psy.tistory.com/8"))
     
@@ -527,17 +505,5 @@ def create_main_window():
     
     # 초기 단축키 등록
     register_hotkey()
-
-        # 프레임 크기가 변경될 때 캔버스 스크롤 영역 업데이트
-    def on_frame_configure(event):
-        canvas.configure(scrollregion=canvas.bbox("all"))
-        
-    content_frame.bind("<Configure>", on_frame_configure)
-    
-    # 마우스 휠 스크롤 이벤트 연결
-    def on_mousewheel(event):
-        canvas.yview_scroll(int(-1*(event.delta/120)), "units")
-        
-    canvas.bind_all("<MouseWheel>", on_mousewheel)
     
     return win, overlay, overlay_label, toggle_btn, register_hotkey
